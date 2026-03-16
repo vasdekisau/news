@@ -1,0 +1,18 @@
+name = "news-vasdekis-api"
+compatibility_date = "2025-03-16"
+main = "src/index.ts"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "news_vasdekis-db"
+database_id = "c185f29a-7728-47b7-b8dd-bb34065e8993"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "2bff784ce0e847ec941dda9a6a3177e5"
+
+[browser]
+binding = "MYBROWSER"
+
+[triggers]
+crons = ["*/15 * * * *"]

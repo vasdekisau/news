@@ -1,0 +1,4 @@
+cloudflare_api_token  = "lBkLqJB7CXUomU4Ms2AZZDLEHcM_SQDuovulHh1b"
+cloudflare_account_id = "4e50061ad5eb1f65b4d133d29e9505ea"
+cloudflare_zone_id    = "6b29981a73766ab0bb548604cee06ed4"
+project_name          = "news_vasdekis"
