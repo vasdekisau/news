@@ -44,6 +44,23 @@ variable "project_name" {
   default     = "news_vasdekis"
 }
 
+resource "cloudflare_worker_route" "api" {
+  zone_id     = var.cloudflare_zone_id
+  pattern     = "api.vasdekis.com.au/*"
+  script_name = "news"
+}
+
+resource "cloudflare_pages_project" "frontend" {
+  account_id        = var.cloudflare_account_id
+  name              = "news-vasdekis"
+  production_branch = "main"
+  build_config {
+    build_command   = "npm run build"
+    destination_dir = ".next/server/app"
+    root_dir        = "frontend"
+  }
+}
+
 output "account_id" {
   value = var.cloudflare_account_id
 }
