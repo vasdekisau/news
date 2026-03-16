@@ -26,14 +26,6 @@ output "d1_database_id" {
   value = cloudflare_d1_database.database.id
 }
 
-output "r2_pdfs_bucket" {
-  value = cloudflare_r2_bucket.pdfs.id
-}
-
-output "r2_images_bucket" {
-  value = cloudflare_r2_bucket.images.id
-}
-
 output "kv_namespace_id" {
   value = cloudflare_workers_kv_namespace.cache.id
 }
