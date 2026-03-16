@@ -44,12 +44,6 @@ variable "project_name" {
   default     = "news_vasdekis"
 }
 
-resource "cloudflare_workers_route" "api" {
-  zone_id = var.cloudflare_zone_id
-  pattern = "api.vasdekis.com.au/*"
-  script  = "news"
-}
-
 resource "cloudflare_pages_project" "frontend" {
   account_id        = var.cloudflare_account_id
   name              = "news-vasdekis"
