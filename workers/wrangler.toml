@@ -1,4 +1,4 @@
-name = "news-vasdekis-api"
+name = "news"
 compatibility_date = "2025-03-16"
 main = "src/index.ts"
 
