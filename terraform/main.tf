@@ -45,16 +45,6 @@ variable "project_name" {
 }
 
 import {
-  id = "4e50061ad5eb1f65b4d133d29e9505ea/news"
-  to = cloudflare_worker_script.news
-}
-
-resource "cloudflare_worker_script" "news" {
-  account_id = var.cloudflare_account_id
-  name       = "news"
-}
-
-import {
   id = "6b29981a73766ab0bb548604cee06ed4/api.vasdekis.com.au/*"
   to = cloudflare_workers_route.api
 }
