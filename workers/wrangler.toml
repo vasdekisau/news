@@ -16,3 +16,7 @@ binding = "MYBROWSER"
 
 [triggers]
 crons = ["*/15 * * * *"]
+
+[[routes]]
+pattern = "api.vasdekis.com.au/*"
+zone_name = "vasdekis.com.au"
