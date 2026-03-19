@@ -60,6 +60,24 @@ resource "cloudflare_pages_project" "frontend" {
   production_branch = "main"
 }
 
+# DNS for frontend
+resource "cloudflare_record" "news" {
+  zone_id = var.cloudflare_zone_id
+  name    = "news"
+  content = "news-vasdekis.pages.dev"
+  type    = "CNAME"
+  proxied = true
+}
+
+# DNS for API
+resource "cloudflare_record" "api" {
+  zone_id = var.cloudflare_zone_id
+  name    = "api"
+  content = "news-vasdekis-api.workers.dev"
+  type    = "CNAME"
+  proxied = true
+}
+
 output "account_id" {
   value = var.cloudflare_account_id
 }
