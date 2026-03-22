@@ -1,4 +1,4 @@
-# My News Curator
+# News Vasdekis
 
 ## What This Is
 
@@ -6,25 +6,29 @@ A private, LLM-curated news aggregator that pulls content from RSS feeds and web
 
 ## Core Value
 
-A single, personalized reading feed that learns your preferences through simple upvotes/downvotes, presenting the most relevant news from across the internet in a fast, distraction-free interface.
+A single, personalized reading feed that learns your preferences through simple upvotes/downvotes with comments, presenting the most relevant news from across the internet in a fast, distraction-free interface.
 
 ## Requirements
 
 ### Validated
 
-(None yet — ship to validate)
+- ✓ RSS feed aggregation — fetch and parse feeds, store articles in D1
+- ✓ Article scraping — extract full content from URLs with Playwright fallback
+- ✓ AI content cleaning — LLM-powered boilerplate removal
+- ✓ AI daily ranking — LLM ranks articles by importance within each day
+- ✓ In-page article reading — full content visible without leaving site (expand/collapse)
+- ✓ Thumbs up/down with comments — user feedback with sentiment analysis
+- ✓ Topic extraction — AI extracts topics from feedback for interest tracking
+- ✓ Source scoring — tracks which sources user likes/dislikes
+- ✓ LLM personalization — reranks feed based on user preferences and interests
+- ✓ Dark mode UI — mobile-first Tailwind design
+- ✓ Day-grouped articles — collapsible day sections
 
 ### Active
 
-- [ ] RSS feed aggregation — fetch and parse feeds from user-selected sources
-- [ ] Full article scraping — extract complete article content from URLs (readability)
-- [ ] LLM-powered summarization — generate summaries for quick scanning
-- [ ] Pre-processed fast loading — articles rendered from storage, not live fetch
-- [ ] In-page article reading — full content visible without leaving the site
-- [ ] Personal curation — thumbs up/down to train preference scoring
-- [ ] Preference-based ranking — feed sorted by predicted interest per user
-- [ ] Source management — add/remove RSS sources
-- [ ] Mobile-first dark mode UI — fast, readable on all devices
+- [ ] Fix API 1014 error — Worker route not accessible from browser
+- [ ] Deploy frontend to Cloudflare Pages — make accessible globally
+- [ ] Google Drive PDF sync — ingest Economist PDFs from Drive
 
 ### Out of Scope
 
@@ -32,41 +36,39 @@ A single, personalized reading feed that learns your preferences through simple 
 - [Multi-user support] — Single-user private dashboard
 - [Public sharing] — Private by design, no social features
 - [Search functionality] — Preference-based curation replaces search
-- [Advertising] — No monetization in v1
 
 ## Context
 
-**Greenfield project** — No existing code to preserve. Building from scratch with modern stack.
+**Brownfield project** — Substantial existing implementation. Most features working, deployment incomplete.
 
-**User wants:**
-- News aggregated from sources they choose (RSS feeds initially)
-- Full articles readable in-page (not linking out)
-- Fast loading via pre-processing
-- Google News-like experience but private and without copyright concerns
-- LLM curation/summarization to help triage what's worth reading
+**Existing infrastructure:**
+- Worker API deployed to Cloudflare Workers
+- D1 database with schema (articles, device_preferences, content_sources, etc.)
+- Next.js 14 frontend (build succeeds, not deployed to Pages)
+- Terraform config exists but Pages not configured
 
-**Performance is critical:**
-- All content pre-processed and stored
-- Sub-second page loads
-- Offline-capable reading
+**Key issues to resolve:**
+1. API 1014 error — Worker route returns error when accessed
+2. Frontend not on Cloudflare Pages — only runs locally
+3. PDF sync with Google Drive not implemented
 
 ## Constraints
 
 - **[Platform]**: Cloudflare Workers + Pages — serverless, global CDN, low cost
-- **[Database]**: D1 for metadata, R2 for article cache — Cloudflare native storage
+- **[Database]**: D1 for metadata — Cloudflare native SQLite
 - **[Auth]**: None — device-based preferences via localStorage
 - **[Privacy]**: 100% private, no auth, no analytics, no external calls except to feed sources
-- **[Content]**: Personal use only — no distribution, no public access
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Device-based preferences | Personal use, no auth needed | — Pending |
-| Cloudflare Workers + Pages | Serverless, global CDN, D1/R2 native | — Pending |
-| Pre-process all content | Fast load times critical UX | — Pending |
-| RSS-first approach | Most sources support RSS, easy to parse | — Pending |
-| Readability extraction | In-page article reading without leaving | — Pending |
+| Device-based preferences | Personal use, no auth needed | ✓ Good |
+| Cloudflare Workers + Pages | Serverless, global CDN, D1/R2 native | ✓ Good |
+| AI content cleaning | Remove boilerplate, improve readability | ✓ Good |
+| LLM daily ranking | Surface most important articles first | ✓ Good |
+| LLM personalization | Rerank feed based on user feedback | ✓ Good |
+| Topic extraction | Learn user interests from comments | ✓ Good |
 
 ---
-*Last updated: 2026-03-22 after initialization*
+*Last updated: 2026-03-22 after codebase analysis*
