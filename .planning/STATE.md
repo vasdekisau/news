@@ -1,33 +1,45 @@
-# STATE.md - Project State
+# State: News Vasdekis
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-19)
+See: .planning/PROJECT.md (updated 2026-03-22)
 
-**Core value:** A personalized reading feed that learns through thumbs up/down curation
+**Core value:** A personalized reading feed that learns your preferences through upvotes/downvotes
 
-**Current phase:** Not started
+**Current focus:** Phase 2: Infrastructure & Deployment
 
-## Milestone: v1.0
+## Phase Progress
 
-### Status
-- **Phase 1:** Not started — Core Feed
-- **Phase 2:** Not started — Content + Preferences
-- **Phase 3:** Not started — PDF Integration
+| Phase | Name | Status | Plans | Summaries |
+|-------|------|--------|-------|-----------|
+| 1 | Core Features | ✓ Complete | 0 | 0 |
+| 2 | Infrastructure | ○ Pending | 0 | 0 |
+| 3 | PDF Integration | ○ Pending | 0 | 0 |
 
-### Progress
-- Requirements defined: 24
-- Plans created: 0
-- Plans executed: 0
+## Recent Work
 
-## Context
+- 2026-03-22: Initialized project, analyzed existing codebase
 
-### Blocking Issues
-- API 1014 error (Worker route not accessible)
-- Frontend not deployed to Cloudflare Pages
+## Decisions Made
 
-### Next Action
-Start with Phase 1: Core Feed (or fix deployment issues first)
+| Decision | Rationale | Outcome |
+|----------|-----------|---------|
+| Device-based preferences | Personal use, no auth needed | ✓ Good |
+| Cloudflare Workers + Pages | Serverless, global CDN, D1/R2 native | ✓ Good |
+| AI content cleaning | Remove boilerplate, improve readability | ✓ Good |
+| LLM daily ranking | Surface most important articles first | ✓ Good |
+
+## Blockers
+
+| Blocker | Phase | Notes |
+|---------|-------|-------|
+| API 1014 error | 2 | Worker route not accessible |
+| Frontend not deployed | 2 | Next.js build succeeds but not on Pages |
+| Google Drive OAuth | 3 | Not yet configured |
+
+## Pending Todos
+
+None.
 
 ---
-*Last updated: 2026-03-19 after initialization*
+*Last updated: 2026-03-22 after initialization*
