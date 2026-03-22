@@ -1,105 +1,102 @@
 # Requirements: News Vasdekis
 
-**Defined:** 2026-03-19
-**Core Value:** A personalized reading feed that learns through thumbs up/down curation
+**Defined:** 2026-03-22
+**Core Value:** A personalized reading feed that learns your preferences through upvotes/downvotes, presenting relevant news in a fast, distraction-free interface.
 
 ## v1 Requirements
 
-### RSS Aggregation
+### Content Ingestion
 
-- [ ] **RSS-01**: Parse RSS 2.0, Atom, and JSON Feed formats
-- [ ] **RSS-02**: Fetch articles from configured sources on schedule
-- [ ] **RSS-03**: Deduplicate articles by URL and GUID
-- [ ] **RSS-04**: Store articles in D1 with title, URL, description, pubDate, source
-- [ ] **RSS-05**: Handle malformed feeds gracefully with error logging
+- [ ] **INGEST-01**: User can add RSS feed sources via API
+- [ ] **INGEST-02**: System fetches RSS feeds on schedule (cron job)
+- [ ] **INGEST-03**: System scrapes full article content from URLs
+- [ ] **INGEST-04**: AI cleans article content (removes boilerplate)
+- [ ] **INGEST-05**: Articles stored in D1 with full metadata
 
-### Content Management
+### Personalization
 
-- [ ] **CONT-01**: Extract full article content from URLs via scraping
-- [ ] **CONT-02**: Extract metadata (author, image, categories) from articles
-- [ ] **CONT-03**: Update existing articles with scraped content
-- [ ] **CONT-04**: API endpoint to list articles with pagination
+- [ ] **PERS-01**: User can give thumbs up/down on articles with comments
+- [ ] **PERS-02**: System extracts sentiment from feedback (positive/negative/neutral)
+- [ ] **PERS-03**: System extracts topics from feedback for interest learning
+- [ ] **PERS-04**: System tracks source preferences per device
+- [ ] **PERS-05**: LLM reranks personalized feed based on preferences
+- [ ] **PERS-06**: LLM ranks articles by importance within each day
 
-### User Preferences
+### Reading Experience
 
-- [ ] **PREF-01**: Thumbs up on article increases source score
-- [ ] **PREF-02**: Thumbs down on article decreases source score
-- [ ] **PREF-03**: Store preferences per device ID in D1
-- [ ] **PREF-04**: API to submit preference (thumbs up/down)
-- [ ] **PREF-05**: API to get preferences for device
+- [ ] **READ-01**: Articles displayed in day-grouped sections
+- [ ] **READ-02**: User can expand article to read full content inline
+- [ ] **READ-03**: Summaries shown by default, full content on demand
+- [ ] **READ-04**: Fast load times (pre-processed content from D1)
 
-### Feed Delivery
+### Infrastructure
 
-- [ ] **FEED-01**: Serve personalized article feed ranked by preference scores
-- [ ] **FEED-02**: Show articles chronologically within preference bands
-- [ ] **FEED-03**: Filter out negatively-scored sources by default
-- [ ] **FEED-04**: API endpoint: GET /feed?device_id=xxx&limit=20
+- [ ] **INFRA-01**: Worker API accessible at public URL (fix 1014 error)
+- [ ] **INFRA-02**: Frontend deployed to Cloudflare Pages
+- [ ] **INFRA-03**: Dark mode mobile-first UI
+- [ ] **INFRA-04**: Device ID stored in localStorage
 
 ### PDF Integration
 
-- [ ] **PDF-01**: OAuth flow to connect Google Drive account
-- [ ] **PDF-02**: List PDFs from configured Drive folder
-- [ ] **PDF-03**: Download new PDFs to R2 storage
-- [ ] **PDF-04**: Extract text from PDFs using pdf-parse
-- [ ] **PDF-05**: Store PDF text in D1 for display
-- [ ] **PDF-06**: Display PDFs in frontend with extracted text
+- [ ] **PDF-01**: User can connect Google Drive account
+- [ ] **PDF-02**: System syncs PDFs from configured Drive folder
+- [ ] **PDF-03**: PDF text extracted and searchable
+- [ ] **PDF-04**: PDFs appear in feed alongside articles
 
 ## v2 Requirements
 
-### Smart Feed
-- **FEED-05**: Category inference from article content
-- **FEED-06**: Source-based preference learning
-- **FEED-07**: "Read later" without voting
+### Advanced Features
 
-### Enhancement
-- **CONT-05**: Image extraction and hosting
-- **CONT-06**: Readability scoring for articles
+- **PERS-07**: User can set topic-based filtering (only show AI articles)
+- **PERS-08**: System suggests new sources based on interests
+- **READ-05**: Offline reading capability (PWA service worker)
+- **INFRA-05**: Email/digest notifications for top stories
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Full-text search | Overkill for curated feed |
-| Social sharing | Not a social app |
-| Comments | Personal use only |
-| Email newsletters | Not needed |
-| Multiple user accounts | Device-based is sufficient |
-| Bookmarks | Use read state instead |
+| User authentication | Personal use, device-based preferences sufficient |
+| Multi-device sync | Not needed for single-user personal use |
+| Public sharing | Private by design |
+| Search | Curation replaces search |
+| Social features | No community aspects |
+| Advertising | No monetization |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| RSS-01 | Phase 1 | Pending |
-| RSS-02 | Phase 1 | Pending |
-| RSS-03 | Phase 1 | Pending |
-| RSS-04 | Phase 1 | Pending |
-| RSS-05 | Phase 1 | Pending |
-| CONT-04 | Phase 1 | Pending |
-| PREF-04 | Phase 1 | Pending |
-| PREF-05 | Phase 1 | Pending |
-| FEED-01 | Phase 1 | Pending |
-| FEED-02 | Phase 1 | Pending |
-| FEED-03 | Phase 1 | Pending |
-| FEED-04 | Phase 1 | Pending |
-| CONT-01 | Phase 2 | Pending |
-| CONT-02 | Phase 2 | Pending |
-| CONT-03 | Phase 2 | Pending |
-| PREF-01 | Phase 2 | Pending |
-| PREF-02 | Phase 2 | Pending |
-| PREF-03 | Phase 2 | Pending |
+| INGEST-01 | Phase 1 | Complete |
+| INGEST-02 | Phase 1 | Complete |
+| INGEST-03 | Phase 1 | Complete |
+| INGEST-04 | Phase 1 | Complete |
+| INGEST-05 | Phase 1 | Complete |
+| PERS-01 | Phase 1 | Complete |
+| PERS-02 | Phase 1 | Complete |
+| PERS-03 | Phase 1 | Complete |
+| PERS-04 | Phase 1 | Complete |
+| PERS-05 | Phase 1 | Complete |
+| PERS-06 | Phase 1 | Complete |
+| READ-01 | Phase 1 | Complete |
+| READ-02 | Phase 1 | Complete |
+| READ-03 | Phase 1 | Complete |
+| READ-04 | Phase 1 | Complete |
+| INFRA-01 | Phase 2 | Pending |
+| INFRA-02 | Phase 2 | Pending |
+| INFRA-03 | Phase 1 | Complete |
+| INFRA-04 | Phase 1 | Complete |
 | PDF-01 | Phase 3 | Pending |
 | PDF-02 | Phase 3 | Pending |
 | PDF-03 | Phase 3 | Pending |
 | PDF-04 | Phase 3 | Pending |
-| PDF-05 | Phase 3 | Pending |
-| PDF-06 | Phase 3 | Pending |
 
 **Coverage:**
-- v1 requirements: 24 total
-- Mapped to phases: 24
-- Unmapped: 0 ✓
+- v1 requirements: 20 total
+- Mapped to phases: 20
+- Complete: 14
+- Pending: 6
 
 ---
-*Requirements defined: 2026-03-19*
-*Last updated: 2026-03-19 after roadmap creation*
+*Requirements defined: 2026-03-22*
+*Last updated: 2026-03-22 after codebase analysis*
