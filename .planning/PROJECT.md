@@ -1,69 +1,72 @@
-# News Vasdekis
+# My News Curator
 
 ## What This Is
 
-Personalized content aggregator that pulls articles from RSS feeds and PDFs from Google Drive, presenting a curated feed based on thumbs up/down voting. Designed for personal use with no authentication—preferences are stored per-device.
+A private, LLM-curated news aggregator that pulls content from RSS feeds and web sources into one fast, personalized reading feed. Articles are pre-processed so readers can consume full content without leaving the site. Designed for personal use only—no auth, no sharing, just a better news experience that's yours alone.
 
 ## Core Value
 
-A single, personalized reading feed that learns what you like through simple thumbs up/down curation, pulling content from RSS feeds and your Google Drive PDFs.
+A single, personalized reading feed that learns your preferences through simple upvotes/downvotes, presenting the most relevant news from across the internet in a fast, distraction-free interface.
 
 ## Requirements
 
 ### Validated
 
-- ✓ Cloudflare Workers API deployed with Hono — existing
-- ✓ D1 database schema — existing
-- ✓ Next.js 14 frontend with dark mode — existing
-- ✓ Article card component with thumbs up/down — existing
-- ✓ RSS sources seeded in database — existing
+(None yet — ship to validate)
 
 ### Active
 
-- [ ] RSS feed fetching — parse feeds, fetch articles, store in D1
-- [ ] Content scraping — extract full article content from URLs
-- [ ] Google Drive PDF sync — sync PDFs from Drive folder, extract text
-- [ ] Personalized feed — rank articles by preference scores
-- [ ] Device preference storage — persist thumbs up/down per device
-- [ ] Fix API 1014 error — Worker route not accessible
+- [ ] RSS feed aggregation — fetch and parse feeds from user-selected sources
+- [ ] Full article scraping — extract complete article content from URLs (readability)
+- [ ] LLM-powered summarization — generate summaries for quick scanning
+- [ ] Pre-processed fast loading — articles rendered from storage, not live fetch
+- [ ] In-page article reading — full content visible without leaving the site
+- [ ] Personal curation — thumbs up/down to train preference scoring
+- [ ] Preference-based ranking — feed sorted by predicted interest per user
+- [ ] Source management — add/remove RSS sources
+- [ ] Mobile-first dark mode UI — fast, readable on all devices
 
 ### Out of Scope
 
-- [User authentication] — Device-based preferences sufficient for personal use
-- [Multi-user support] — Not needed for personal use case
-- [Search functionality] — Deferred to future
-- [Social features] — Not a community app
+- [User authentication] — Personal use only, device-based tracking is sufficient
+- [Multi-user support] — Single-user private dashboard
+- [Public sharing] — Private by design, no social features
+- [Search functionality] — Preference-based curation replaces search
+- [Advertising] — No monetization in v1
 
 ## Context
 
-**Brownfield project** — Worker and frontend partially deployed. API returns 1014 error (route not properly configured). Frontend not yet on Cloudflare Pages.
+**Greenfield project** — No existing code to preserve. Building from scratch with modern stack.
 
-**Existing infrastructure:**
-- Worker `news` deployed to Cloudflare
-- D1 database with seeded RSS sources (BBC, Wired, NPR, Guardian, HN)
-- Next.js frontend (build succeeds, not deployed)
-- Terraform config for Pages project (not yet applied)
+**User wants:**
+- News aggregated from sources they choose (RSS feeds initially)
+- Full articles readable in-page (not linking out)
+- Fast loading via pre-processing
+- Google News-like experience but private and without copyright concerns
+- LLM curation/summarization to help triage what's worth reading
 
-**Key issues to resolve:**
-- API 1014 error blocking all functionality
-- Frontend deployment pending Terraform
-- Google Drive OAuth not yet configured
+**Performance is critical:**
+- All content pre-processed and stored
+- Sub-second page loads
+- Offline-capable reading
 
 ## Constraints
 
-- **[Platform]**: Cloudflare Workers + Pages — specified by user
-- **[Auth]**: None — public app, device-based preferences
-- **[Storage]**: D1 for data, R2 for PDFs — Cloudflare services
-- **[UI]**: Mobile-first dark mode — from spec
+- **[Platform]**: Cloudflare Workers + Pages — serverless, global CDN, low cost
+- **[Database]**: D1 for metadata, R2 for article cache — Cloudflare native storage
+- **[Auth]**: None — device-based preferences via localStorage
+- **[Privacy]**: 100% private, no auth, no analytics, no external calls except to feed sources
+- **[Content]**: Personal use only — no distribution, no public access
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Device-based preferences | Personal use, no auth needed | ✓ Good |
-| Cloudflare Workers + Pages | Low cost, serverless, CDN | ✓ Good |
-| No search in v1 | Minimally viable curation | — Pending |
-| Google Drive sync | User has Economist PDFs there | — Pending |
+| Device-based preferences | Personal use, no auth needed | — Pending |
+| Cloudflare Workers + Pages | Serverless, global CDN, D1/R2 native | — Pending |
+| Pre-process all content | Fast load times critical UX | — Pending |
+| RSS-first approach | Most sources support RSS, easy to parse | — Pending |
+| Readability extraction | In-page article reading without leaving | — Pending |
 
 ---
-*Last updated: 2026-03-19 after questioning*
+*Last updated: 2026-03-22 after initialization*
