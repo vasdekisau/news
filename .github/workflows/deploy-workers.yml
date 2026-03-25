@@ -1,0 +1,61 @@
+name: Deploy Workers
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'workers/**'
+      - '.github/workflows/deploy-workers.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'workers/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: workers/package-lock.json
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: workers
+
+      - name: Deploy to Cloudflare
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ vars.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy --dry-run=false
+          working-directory: workers
+        env:
+          CF_API_TOKEN: ${{ vars.CLOUDFLARE_API_TOKEN }}
+
+  e2e:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Run E2E tests
+        run: npm test
+        env:
+          PLAYWRIGHT_BASE_URL: https://news.vasdekis.com.au

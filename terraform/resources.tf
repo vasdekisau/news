@@ -4,22 +4,18 @@ resource "cloudflare_d1_database" "database" {
   name       = "${var.project_name}-db"
 }
 
-# R2 Buckets - need separate token with R2 permissions
-# For now, we'll use D1 to store PDF metadata and content as text
-# Later can add R2 when token with R2 permissions is provided
-
-# output "r2_pdfs_bucket" {
-#   value = cloudflare_r2_bucket.pdfs.id
-# }
-
-# output "r2_images_bucket" {
-#   value = cloudflare_r2_bucket.images.id
-# }
-
 # Workers Namespace for KV
 resource "cloudflare_workers_kv_namespace" "cache" {
   account_id = var.cloudflare_account_id
   title      = "${var.project_name}-cache"
+}
+
+# Worker Route - binds api.vasdekis.com.au/* to the Worker
+# Fixes 1014 error by properly establishing the route
+resource "cloudflare_workers_route" "api" {
+  zone_id     = var.cloudflare_zone_id
+  pattern     = "api.vasdekis.com.au/*"
+  script_name = "news"
 }
 
 output "d1_database_id" {

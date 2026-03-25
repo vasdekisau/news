@@ -1,13 +1,6 @@
 terraform {
   required_version = ">= 1.0"
 
-  cloud {
-    organization = "vasdekisau"
-    workspaces {
-      name = "news"
-    }
-  }
-
   required_providers {
     cloudflare = {
       source  = "cloudflare/cloudflare"
@@ -23,7 +16,6 @@ provider "cloudflare" {
 variable "cloudflare_api_token" {
   description = "Cloudflare API Token"
   type        = string
-  sensitive   = true
 }
 
 variable "cloudflare_account_id" {
@@ -44,38 +36,23 @@ variable "project_name" {
   default     = "news_vasdekis"
 }
 
-import {
-  id = "6b29981a73766ab0bb548604cee06ed4/api.vasdekis.com.au/*"
-  to = cloudflare_workers_route.api
+resource "cloudflare_pages_domain" "news" {
+  account_id   = var.cloudflare_account_id
+  project_name = "news-vasdekis"
+  domain       = "news.vasdekis.com.au"
 }
 
-resource "cloudflare_workers_route" "api" {
-  zone_id = var.cloudflare_zone_id
-  pattern = "api.vasdekis.com.au/*"
-}
-
+# Cloudflare Pages Project for frontend
+# Manages build configuration for Cloudflare Pages
 resource "cloudflare_pages_project" "frontend" {
   account_id        = var.cloudflare_account_id
   name              = "news-vasdekis"
   production_branch = "main"
-}
-
-# DNS for frontend
-resource "cloudflare_record" "news" {
-  zone_id = var.cloudflare_zone_id
-  name    = "news"
-  content = "news-vasdekis.pages.dev"
-  type    = "CNAME"
-  proxied = true
-}
-
-# DNS for API
-resource "cloudflare_record" "api" {
-  zone_id = var.cloudflare_zone_id
-  name    = "api"
-  content = "news-vasdekis-api.workers.dev"
-  type    = "CNAME"
-  proxied = true
+  build_config {
+    build_caching   = true
+    build_command   = "npm run build"
+    destination_dir = "out"
+  }
 }
 
 output "account_id" {

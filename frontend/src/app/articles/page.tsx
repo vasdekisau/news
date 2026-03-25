@@ -47,14 +47,6 @@ export default function Articles() {
     fetchArticles();
   }, []);
 
-  const handlePreference = async (articleId: string, preference: number) => {
-    await fetch(`${API_BASE}/api/preferences`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ device_id: deviceId, article_id: articleId, preference }),
-    });
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -73,8 +65,7 @@ export default function Articles() {
               <ArticleCard
                 key={article.id}
                 article={article}
-                onThumbsUp={() => handlePreference(article.id, 1)}
-                onThumbsDown={() => handlePreference(article.id, -1)}
+                deviceId={deviceId}
               />
             ))}
           </div>

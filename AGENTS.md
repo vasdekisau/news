@@ -205,6 +205,22 @@ External:
 
 ---
 
+## Secrets Management
+
+All secrets are stored as GitHub repo variables (not TF Cloud). Run this before any terraform work:
+
+```bash
+./scripts/manage_variables.sh
+```
+
+This creates:
+- `.env` - Environment variables for local development
+- `terraform/terraform.tfvars` - Terraform variables
+
+Never commit `.env` or `terraform.tfvars` - they are gitignored.
+
+---
+
 ## Notes
 
 - All agents should coordinate through the human

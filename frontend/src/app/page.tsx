@@ -16,6 +16,7 @@ interface Article {
   image_url: string;
   category: string;
   user_preference?: number;
+  day_date?: string;
 }
 
 function getDeviceId(): string {
@@ -28,15 +29,29 @@ function getDeviceId(): string {
   return deviceId;
 }
 
+function formatDayHeader(dayDate: string): string {
+  const today = new Date()
+  const yesterday = new Date(today)
+  yesterday.setDate(yesterday.getDate() - 1)
+  
+  const date = new Date(dayDate + 'T00:00:00')
+  const dateStr = date.toLocaleDateString('en-AU', { weekday: 'long', month: 'long', day: 'numeric' })
+  
+  if (dayDate === today.toISOString().split('T')[0]) return `Today - ${dateStr}`
+  if (dayDate === yesterday.toISOString().split('T')[0]) return `Yesterday - ${dateStr}`
+  return dateStr
+}
+
 export default function Home() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [deviceId] = useState(() => getDeviceId());
+  const [collapsedDays, setCollapsedDays] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     async function fetchFeed() {
       try {
-        const res = await fetch(`${API_BASE}/api/feed?device_id=${deviceId}&limit=20`);
+        const res = await fetch(`${API_BASE}/api/feed?device_id=${deviceId}&limit=30`);
         const data = await res.json();
         setArticles(data.articles || []);
       } catch (err) {
@@ -48,16 +63,39 @@ export default function Home() {
     fetchFeed();
   }, [deviceId]);
 
-  const handlePreference = async (articleId: string, preference: number) => {
-    await fetch(`${API_BASE}/api/preferences`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ device_id: deviceId, article_id: articleId, preference }),
-    });
-    setArticles(articles.map(a => 
-      a.id === articleId ? { ...a, user_preference: preference } : a
-    ));
+  const handleAdjust = (articleId: string) => {
+    async function refreshFeed() {
+      try {
+        const res = await fetch(`${API_BASE}/api/feed?device_id=${deviceId}&limit=30`);
+        const data = await res.json();
+        setArticles(data.articles || []);
+      } catch (err) {
+        console.error("Failed to refresh feed:", err);
+      }
+    }
+    refreshFeed();
   };
+
+  const toggleDay = (dayDate: string) => {
+    setCollapsedDays(prev => {
+      const next = new Set(prev)
+      if (next.has(dayDate)) {
+        next.delete(dayDate)
+      } else {
+        next.add(dayDate)
+      }
+      return next
+    })
+  };
+
+  const grouped = articles.reduce<Record<string, Article[]>>((acc, article) => {
+    const day = article.day_date || 'unknown'
+    if (!acc[day]) acc[day] = []
+    acc[day].push(article)
+    return acc
+  }, {})
+
+  const sortedDays = Object.keys(grouped).sort((a, b) => b.localeCompare(a))
 
   return (
     <div className="min-h-screen bg-background">
@@ -74,13 +112,28 @@ export default function Home() {
           </div>
         ) : (
           <div className="space-y-4">
-            {articles.map((article) => (
-              <ArticleCard
-                key={article.id}
-                article={article}
-                onThumbsUp={() => handlePreference(article.id, 1)}
-                onThumbsDown={() => handlePreference(article.id, -1)}
-              />
+            {sortedDays.map(day => (
+              <div key={day}>
+                <button
+                  onClick={() => toggleDay(day)}
+                  className="sticky top-0 z-10 w-full py-2 px-3 bg-background/95 backdrop-blur-sm border-b border-border flex items-center justify-between font-semibold text-sm mb-2"
+                >
+                  <span>{formatDayHeader(day)}</span>
+                  <span className="text-muted-foreground text-xs">{grouped[day].length} articles</span>
+                </button>
+                {!collapsedDays.has(day) && (
+                  <div className="space-y-4">
+                    {grouped[day].map((article) => (
+                      <ArticleCard
+                        key={article.id}
+                        article={article}
+                        deviceId={deviceId}
+                        onAdjust={() => handleAdjust(article.id)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         )}

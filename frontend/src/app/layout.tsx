@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { PasswordGate } from "@/components/password-gate";
 
 export const metadata: Metadata = {
   title: "News Vasdekis",
@@ -21,7 +22,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <PasswordGate>{children}</PasswordGate>
         </ThemeProvider>
       </body>
     </html>

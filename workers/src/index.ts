@@ -6,7 +6,7 @@ import { preferences } from './routes/preferences'
 import { sources } from './routes/sources'
 import { pdfs } from './routes/pdfs'
 import { feed } from './routes/feed'
-import { scraper } from './routes/scraper'
+import { scraper, doScrape } from './routes/scraper'
 
 type Env = {
   DB: D1Database
@@ -35,3 +35,7 @@ app.notFound((c) => c.json({ error: 'Not found' }, 404))
 app.onError((err, c) => c.json({ error: err.message }, 500))
 
 export default app
+
+export const scheduled: ExportedHandlerScheduledHandler = async (controller, env) => {
+  await doScrape(env.DB as D1Database, env.KV as KVNamespace, null)
+}
