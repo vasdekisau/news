@@ -38,6 +38,6 @@ jobs:
           apiToken: ${{ vars.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy out/ --project-name=news-vasdekis
-          working-directory: frontend
+          workingDirectory: frontend
         env:
           CF_API_TOKEN: ${{ vars.CLOUDFLARE_API_TOKEN }}
