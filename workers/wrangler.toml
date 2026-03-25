@@ -11,12 +11,12 @@ database_id = "c185f29a-7728-47b7-b8dd-bb34065e8993"
 binding = "KV"
 id = "2bff784ce0e847ec941dda9a6a3177e5"
 
+[[r2_buckets]]
+binding = "PDFS"
+bucket_name = "news-vasdekis-pdfs"
+
 [browser]
 binding = "MYBROWSER"
 
 [triggers]
 crons = ["*/15 * * * *"]
-
-[[routes]]
-pattern = "api.vasdekis.com.au/*"
-zone_name = "vasdekis.com.au"
