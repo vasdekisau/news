@@ -442,12 +442,14 @@ scraper.post('/reprocess/:id', async (c) => {
 })
 
 scraper.post('/fetch-everything', async (c) => {
-  const results = await doScrape(c.env.DB, c.env.KV, null)
+  const body = await c.req.json().catch(() => ({}))
+  const day = body.day || null
+  const results = await doScrape(c.env.DB, c.env.KV, null, day)
   return c.json(results)
 })
 
-export async function doScrape(db: D1Database, kv: KVNamespace | null, browser: any) {
-  const results: any = { sources: [], hackernews: null, errors: [], ranking: null }
+export async function doScrape(db: D1Database, kv: KVNamespace | null, browser: any, targetDay?: string | null) {
+  const results: any = { sources: [], hackernews: null, errors: [], ranking: null, targetDay }
   const newArticleIds: string[] = []
   
   try {
@@ -476,7 +478,7 @@ export async function doScrape(db: D1Database, kv: KVNamespace | null, browser: 
         
         const id = crypto.randomUUID()
         const publishedAt = item.pubDate ? new Date(item.pubDate).getTime() : Date.now()
-        const dayDate = new Date(publishedAt).toISOString().split('T')[0]
+        const dayDate = targetDay || new Date(publishedAt).toISOString().split('T')[0]
         
         await db.prepare(`
           INSERT INTO articles (id, source, url, title, content, summary, author, image_url, published_at, created_at, day_date)
@@ -541,7 +543,7 @@ export async function doScrape(db: D1Database, kv: KVNamespace | null, browser: 
         
         const id = crypto.randomUUID()
         const publishedAt = story.time ? story.time * 1000 : Date.now()
-        const dayDate = new Date(publishedAt).toISOString().split('T')[0]
+        const dayDate = targetDay || new Date(publishedAt).toISOString().split('T')[0]
         
         await db.prepare(`
           INSERT INTO articles (id, source, url, title, content, summary, author, image_url, published_at, created_at, day_date)
