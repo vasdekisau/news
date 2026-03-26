@@ -473,7 +473,7 @@ export async function doScrape(db: D1Database, kv: KVNamespace | null, browser: 
         
         const id = crypto.randomUUID()
         const publishedAt = item.pubDate ? new Date(item.pubDate).getTime() : Date.now()
-        const dayDate = new Date(publishedAt * 1000).toISOString().split('T')[0]
+        const dayDate = new Date(publishedAt).toISOString().split('T')[0]
         
         await db.prepare(`
           INSERT INTO articles (id, source, url, title, content, summary, author, image_url, published_at, created_at, day_date)
@@ -529,7 +529,7 @@ export async function doScrape(db: D1Database, kv: KVNamespace | null, browser: 
         
         const id = crypto.randomUUID()
         const publishedAt = hit.created_at ? new Date(hit.created_at).getTime() : Date.now()
-        const dayDate = new Date(publishedAt * 1000).toISOString().split('T')[0]
+        const dayDate = new Date(publishedAt).toISOString().split('T')[0]
         
         await db.prepare(`
           INSERT INTO articles (id, source, url, title, content, summary, author, image_url, published_at, created_at, day_date)
