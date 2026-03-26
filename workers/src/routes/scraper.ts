@@ -589,18 +589,23 @@ async function rankArticlesByDay(db: D1Database, newArticleIds: string[]) {
     return { days: 0, articlesRanked: 0 }
   }
   
-  const placeholders = newArticleIds.map(() => '?').join(',')
-  const articles = await db.prepare(`
-    SELECT id, title, summary, source, day_date, published_at
-    FROM articles
-    WHERE id IN (${placeholders})
-  `).bind(...newArticleIds).all()
-  
   const byDay: Record<string, any[]> = {}
-  for (const article of (articles.results as any[])) {
-    const day = article.day_date
-    if (!byDay[day]) byDay[day] = []
-    byDay[day].push(article)
+  const BATCH_SIZE = 100
+  
+  for (let i = 0; i < newArticleIds.length; i += BATCH_SIZE) {
+    const batch = newArticleIds.slice(i, i + BATCH_SIZE)
+    const placeholders = batch.map(() => '?').join(',')
+    const articles = await db.prepare(`
+      SELECT id, title, summary, source, day_date, published_at
+      FROM articles
+      WHERE id IN (${placeholders})
+    `).bind(...batch).all()
+    
+    for (const article of (articles.results as any[])) {
+      const day = article.day_date
+      if (!byDay[day]) byDay[day] = []
+      byDay[day].push(article)
+    }
   }
   
   let totalRanked = 0
