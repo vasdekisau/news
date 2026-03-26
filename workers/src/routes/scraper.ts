@@ -354,7 +354,8 @@ scraper.post('/fetch-all', async (c) => {
 scraper.post('/fetch-hackernews', async (c) => {
   const browser = c.env.MYBROWSER
   
-  const response = await fetch('https://hn.algolia.com/api/v1/search?tags=front_page&hitsPerPage=30', {
+  // Use HN's native API - returns stories in standard frontpage order
+  const response = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json', {
     headers: {
       'User-Agent': 'News-Vasdekis/1.0'
     }
@@ -364,34 +365,36 @@ scraper.post('/fetch-hackernews', async (c) => {
     return c.json({ error: 'Failed to fetch Hacker News' }, 500)
   }
   
-  const data = await response.json() as {
-    hits: Array<{
-      title: string
-      url: string
-      author: string
-      created_at: string
-      objectID: string
-    }>
-  }
+  const storyIds: number[] = await response.json()
+  const topIds = storyIds.slice(0, 30) // Get top 30
+  
+  // Fetch story details in parallel (HN API allows batch)
+  const storyResponses = await Promise.all(
+    topIds.map(id => 
+      fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`, {
+        headers: { 'User-Agent': 'News-Vasdekis/1.0' }
+      }).then(res => res.json())
+    )
+  )
   
   let inserted = 0
   
-  for (const hit of data.hits) {
-    if (!hit.url) continue
+  for (const story of storyResponses) {
+    if (!story || !story.url) continue
     
     const existing = await c.env.DB.prepare(
       'SELECT id FROM articles WHERE url = ?'
-    ).bind(hit.url).first()
+    ).bind(story.url).first()
     
     if (existing) continue
     
-    const { content, image } = await fetchArticleContent(hit.url, browser)
+    const { content, image } = await fetchArticleContent(story.url, browser)
     
-    const cleanedContent = await cleanContentWithAI(content || hit.title)
+    const cleanedContent = await cleanContentWithAI(content || story.title)
     const summary = generateSummary(cleanedContent)
     
     const id = crypto.randomUUID()
-    const publishedAt = hit.created_at ? new Date(hit.created_at).getTime() : Date.now()
+    const publishedAt = story.time ? story.time * 1000 : Date.now()
     
     await c.env.DB.prepare(`
       INSERT INTO articles (id, source, url, title, content, summary, author, image_url, published_at, created_at)
@@ -399,11 +402,11 @@ scraper.post('/fetch-hackernews', async (c) => {
     `).bind(
       id,
       'Hacker News',
-      hit.url,
-      hit.title?.trim() || titleFromUrl(hit.url),
+      story.url,
+      story.title?.trim() || titleFromUrl(story.url),
       cleanedContent,
       summary,
-      hit.author || '',
+      story.by || '',
       image || '',
       Math.floor(publishedAt / 1000),
       Math.floor(Date.now() / 1000)
@@ -412,7 +415,7 @@ scraper.post('/fetch-hackernews', async (c) => {
     inserted++
   }
   
-  return c.json({ message: `Fetched ${data.hits.length} stories, inserted ${inserted}` })
+  return c.json({ message: `Fetched ${topIds.length} stories, inserted ${inserted}` })
 })
 
 scraper.post('/reprocess/:id', async (c) => {
@@ -507,28 +510,37 @@ export async function doScrape(db: D1Database, kv: KVNamespace | null, browser: 
   }
   
   try {
-    const response = await fetch('https://hn.algolia.com/api/v1/search?tags=front_page&hitsPerPage=30', {
+    const response = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json', {
       headers: { 'User-Agent': 'News-Vasdekis/1.0' }
     })
     
     if (response.ok) {
-      const data = await response.json() as any
+      const storyIds: number[] = await response.json()
+      const topIds = storyIds.slice(0, 30)
+      
+      const storyResponses = await Promise.all(
+        topIds.map(id => 
+          fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`, {
+            headers: { 'User-Agent': 'News-Vasdekis/1.0' }
+          }).then(res => res.json())
+        )
+      )
+      
       let inserted = 0
       
-      for (const hit of data.hits) {
-        if (!hit.url) continue
+      for (const story of storyResponses) {
+        if (!story || !story.url) continue
         
-        const rawTitle = hit.title ? String(hit.title).trim() : ''
-        const title = rawTitle || titleFromUrl(hit.url)
+        const title = story.title ? String(story.title).trim() : titleFromUrl(story.url)
         
         const existing = await db.prepare(
           'SELECT id FROM articles WHERE url = ?'
-        ).bind(hit.url).first()
+        ).bind(story.url).first()
         
         if (existing) continue
         
         const id = crypto.randomUUID()
-        const publishedAt = hit.created_at ? new Date(hit.created_at).getTime() : Date.now()
+        const publishedAt = story.time ? story.time * 1000 : Date.now()
         const dayDate = new Date(publishedAt).toISOString().split('T')[0]
         
         await db.prepare(`
@@ -537,11 +549,11 @@ export async function doScrape(db: D1Database, kv: KVNamespace | null, browser: 
         `).bind(
           id,
           'Hacker News',
-          hit.url,
+          story.url,
           title,
           '',
           title,
-          hit.author || '',
+          story.by || '',
           '',
           Math.floor(publishedAt / 1000),
           Math.floor(Date.now() / 1000),
@@ -552,7 +564,7 @@ export async function doScrape(db: D1Database, kv: KVNamespace | null, browser: 
         inserted++
       }
       
-      results.hackernews = { fetched: data.hits.length, inserted }
+      results.hackernews = { fetched: topIds.length, inserted }
     }
   } catch (err: any) {
     results.errors.push({ step: 'hackernews', error: err.message })
